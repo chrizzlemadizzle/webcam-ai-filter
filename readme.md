@@ -7,7 +7,15 @@ This repository is being built step-by-step toward a simple face filter overlay 
 - Live webcam capture (OpenCV)
 - Real-time face detection (MediaPipe Face Detection, pre-trained)
 - Draws a bounding box around the detected face
+- PNG overlay filter (transparent PNG blended onto the webcam feed)
 - Modular project structure (`src/` package)
+
+## Assets
+Place a transparent PNG overlay here:
+
+- `assets/glasses.png`
+
+The PNG must contain an **alpha channel** (transparency). The overlay is resized relative to the detected face box and alpha-blended onto the frame.
 
 ## Setup (Conda)
 
@@ -32,6 +40,6 @@ python -m src.main
 - OpenCV frames are BGR by default; MediaPipe expects RGB (conversion is done in code).
 
 ## Next Steps
-- Add overlay filter (PNG with alpha blending)
+- Add overlay filter (PNG with alpha blending) based on direction of view
 - Add simple face tracking / smoothing
 - Add background segmentation and replacement
