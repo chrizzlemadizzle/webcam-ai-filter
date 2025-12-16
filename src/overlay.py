@@ -34,7 +34,7 @@ def alpha_blend_bgra_onto_bgr(frame_bgr: np.ndarray, overlay_bgra: np.ndarray, x
     ox1, oy1 = x1 - x, y1 - y
     ox2, oy2 = ox1 + (x2 - x1), oy1 + (y2 - y1)
 
-    patch = overlay_bgra[oy1:oy2, ox1, ox2]
+    patch = overlay_bgra[oy1:oy2, ox1:ox2]
     overlay_bgr = patch[:, :, :3].astype(np.float32)
     alpha = (patch[:, :, 3:4].astype(np.float32)) / 255.0
 
