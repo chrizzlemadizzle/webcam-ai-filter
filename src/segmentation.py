@@ -87,7 +87,7 @@ def apply_background_mode(
     elif mode == "image":
         if bg_image_bgr is None:
             return frame_bgr
-        bg = cv2.resize(bg_image_bgr, (H, W), interpolation=cv2.INTER_AREA).astype(np.float32)
+        bg = cv2.resize(bg_image_bgr, (W, H), interpolation=cv2.INTER_AREA).astype(np.float32)
     else:
         return frame_bgr
     
