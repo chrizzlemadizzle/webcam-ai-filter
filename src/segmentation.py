@@ -46,3 +46,50 @@ class BackgroundSegmenter:
 
         m = np.clip(m, 0.0, 1.0).astype(np.float32)
         return m[..., None] # (H, W, 1)
+    
+    def close(self) -> None:
+        self._segmenter.close()
+
+
+def apply_background_mode(
+        frame_bgr: np.ndarray,
+        mask01: np.ndarray,
+        mode: str,
+        bg_image_bgr: np.ndarray | None = None,
+        solid_bgr: tuple[int, int, int] = (30, 30, 30),
+        blur_ksize: int = 31,
+        threshold: float = 0.5,
+) -> np.ndarray:
+    """
+    mode: "none" | "blur" | "solid" | "image"
+    mask01: (H,W,1) float mask, 1 = foreground.
+    threshold: used to make the mask a bit more decisive (optional).
+    """
+    if mode == "none":
+        return frame_bgr
+    
+    H, W = frame_bgr.shape[:2]
+
+    #optional: bias the soft mask a bit (keeps edges soft but reduces bleed)
+    if threshold is not None:
+        m = (mask01 - threshold) / max(1e-6, (1.0 - threshold))
+        m = np.clip(m, 0.0, 1.0).astype(np.float32)
+    else:
+        m = mask01.astype(np.float32)
+
+    fg = frame_bgr.astype(np.float32)
+
+    if mode == "blur":
+        k = blur_ksize if blur_ksize % 2 == 1 else blur_ksize + 1
+        bg = cv2.GaussianBlur(frame_bgr, (k, k), 0).astype(np.float32)
+    elif mode == "solid":
+        bg = np.full((H, W, 3), solid_bgr, dtype=np.float32)
+    elif mode == "image":
+        if bg_image_bgr is None:
+            return frame_bgr
+        bg = cv2.resize(bg_image_bgr, (H, W), interpolation=cv2.INTER_AREA).astype(np.float32)
+    else:
+        return frame_bgr
+    
+    out = m * fg + (1.0 - m) * bg
+    return out.astype(np.uint8)
